@@ -1,0 +1,23 @@
+{
+  "name": "fuel-gauge-max1704",
+  "version": "0.0.0",
+  "description": "Driver for the MAX17048/MAX17049 current fuel gauge chip.",
+  "keywords": [],
+  "author": "Marcus Chang <marcus.chang@arm.com>",
+  "repository": {
+    "url": "git@github.com:ARMmbed/fuel-gauge-max1704.git",
+    "type": "git"
+  },
+  "homepage": "https://github.com/ARMmbed/fuel-gauge-max1704",
+  "licenses": [
+    {
+      "url": "https://spdx.org/licenses/Apache-2.0",
+      "type": "Apache-2.0"
+    }
+  ],
+  "dependencies": {
+    "mbed-core": "~0.2.0",
+    "swo": "ARMmbed/swo#~1.1.0"
+    },
+  "targetDependencies": {}
+}
