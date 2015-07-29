@@ -39,10 +39,54 @@ FuelGauge::FuelGauge(PinName _sda, PinName _scl, PinName _irq)
     irq.fall(this, &FuelGauge::alertISR);
 }
 
-void FuelGauge::getRegister(register_t reg, uint16_t* _returnValuePointer, FunctionPointer& _callback)
+
+
+/*  Get battery level in per mille.
+*/
+void FuelGauge::getPerMille(void (*_callback)(int))
 {
-    returnValuePointer = _returnValuePointer;
-    externalCallback = _callback;
+    externalCallback.attach(_callback);
+
+    event_callback_t callback(this, &FuelGauge::getPerMilleDone);
+
+    getRegister(REGISTER_SOC, callback);
+}
+
+void FuelGauge::getPerMilleDone(int value)
+{
+    if (externalCallback)
+    {
+        externalCallback.call(value * 10 / 256);
+    }
+}
+
+
+/*  Get battery voltage in milli volt.
+*/
+void FuelGauge::getMilliVolt(void (*_callback)(int))
+{
+    externalCallback.attach(_callback);
+
+    event_callback_t callback(this, &FuelGauge::getMilliVoltDone);
+
+    getRegister(REGISTER_VCELL, callback);
+}
+
+void FuelGauge::getMilliVoltDone(int value)
+{
+    if (externalCallback)
+    {
+        externalCallback.call(((uint64_t) value) * 78125 / 1000000);
+    }
+}
+
+
+
+/*  Generic functions for reading and writing registers.
+*/
+void FuelGauge::getRegister(register_t reg, event_callback_t& _callback)
+{
+    registerCallback = _callback;
 
     memoryWrite[0] = reg;
 
@@ -53,19 +97,19 @@ void FuelGauge::getRegister(register_t reg, uint16_t* _returnValuePointer, Funct
 
 void FuelGauge::getRegisterDone(int code __attribute__((unused)))
 {
-    *returnValuePointer = ((uint16_t) memoryRead[0] << 8) | memoryRead[1];
+    registerValue = ((uint16_t) memoryRead[0] << 8) | memoryRead[1];
 
-    if (externalCallback)
+    if (registerCallback)
     {
-        externalCallback.call();
+        registerCallback.call(registerValue);
     }
 }
 
 
 
-void FuelGauge::setRegister(register_t reg, uint16_t value, FunctionPointer& _callback)
+void FuelGauge::setRegister(register_t reg, uint16_t value, event_callback_t& _callback)
 {
-    externalCallback = _callback;
+    registerCallback = _callback;
 
     memoryWrite[0] = reg;
     memoryWrite[1] = value >> 8;
@@ -78,9 +122,9 @@ void FuelGauge::setRegister(register_t reg, uint16_t value, FunctionPointer& _ca
 
 void FuelGauge::setRegisterDone(int code __attribute__((unused)))
 {
-    if (externalCallback)
+    if (registerCallback)
     {
-        externalCallback.call();
+        registerCallback.call(0);
     }
 }
 

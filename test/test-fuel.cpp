@@ -45,26 +45,32 @@ FuelGauge monitor(I2C_SDA, I2C_SCL, FUEL_IRQ);
 
 static void button0fall()
 {
-    vibra = 1;
+    vibra = !vibra;
+
+    monitor.reset(NULL);
 }
 
-static void button0rise()
+
+
+static void milliVoltDone(int milliVolt)
 {
-    vibra = 0;
+    swoprintf("volt: %d.%03dV\r\n", milliVolt / 1000, milliVolt % 1000);
 }
 
-uint16_t version;
-
-static void i2cDone()
+static void permilleDone(int charge)
 {
-    swoprintf("I2C done: %d\r\n", version);
+    swoprintf("charge: %d.%d%%\r\n", charge / 10, charge % 10);
+
+    monitor.getMilliVolt(milliVoltDone);
 }
 
 static void fuelTask()
 {
     swoprintf("fuel\r\n");
 
-//    monitor.getVoltage(&version, i2cDone);
+    monitor.getPerMille(permilleDone);
+
+//    monitor.getVoltage(&value, voltageDone);
 //    monitor.getPercentage(&version, i2cDone);
 //    monitor.getVersion(&version, i2cDone);
 //    monitor.getHibernate(&version, i2cDone);
@@ -84,7 +90,6 @@ int main()
     // Delay for initial pullup to take effect
     wait(.01);
     mbed_button0.fall(button0fall);
-    mbed_button0.rise(button0rise);
 
     minar::Scheduler::postCallback(fuelTask);
 

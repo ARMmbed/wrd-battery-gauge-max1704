@@ -44,6 +44,65 @@ public:
 
     FuelGauge(PinName _sda, PinName _scl, PinName _irq);
 
+    /*  Get battery level in per mille.
+    */
+    template <typename T>
+    void getPerMille(T* object, void (T::*member)(int))
+    {
+        externalCallback.attach(object, member);
+
+        event_callback_t callback(this, &FuelGauge::getPerMilleDone);
+
+        getRegister(REGISTER_SOC, callback);
+    }
+
+    void getPerMille(void (*_callback)(int));
+
+
+    /*  Get battery voltage in milli volts.
+    */
+    template <typename T>
+    void getMilliVolt(T* object, void (T::*member)(int))
+    {
+        externalCallback.attach(object, member);
+
+        event_callback_t callback(this, &FuelGauge::getMilliVoltDone);
+
+        getRegister(REGISTER_VCELL, callback);
+    }
+
+    void getMilliVolt(void (*_callback)(int));
+
+    /*  Reset fuel gauge monitor.
+    */
+    void reset(void (*_callback)(int))
+    {
+        event_callback_t callback(_callback);
+
+        setRegister(REGISTER_CMD, 0x5400, callback);
+    }
+
+#if 0
+
+    /*  Set threshold for when to alert about an emepty battery.
+    */
+    void setEmptyAlert(uint16_t threshold, void (*_callback)(void));
+
+    /*  Clear alert status bit.
+    */
+    void clearAlert(void (*_callback)(void));
+
+    /*  Enable/disable State of Charge change alert.
+    */
+    void enableStateChangeAlert(void (*_callback)(void));
+    void disableStateChangeAlert(void (*_callback)(void));
+
+    /*  Enable/disable sleep mode.
+    */
+    void enableSleep(void (*_callback)(void));
+    void disableSleep(void (*_callback)(void));
+
+
     /*  Read voltage register and call callback.
     */
     template <typename T>
@@ -214,15 +273,18 @@ public:
         getRegister(REGISTER_CMD, returnValue, callback);
     }
 
-
-
+#endif
 
 
 private:
-    void getRegister(register_t reg, uint16_t* value, FunctionPointer& callback);
+    void getPerMilleDone(int);
+    void getMilliVoltDone(int);
+
+private:
+    void getRegister(register_t reg, event_callback_t& callback);
     void getRegisterDone(int code);
 
-    void setRegister(register_t reg, uint16_t value, FunctionPointer& callback);
+    void setRegister(register_t reg, uint16_t value, event_callback_t& callback);
     void setRegisterDone(int code);
 
     void alertISR();
@@ -232,8 +294,10 @@ private:
 
     char memoryWrite[3];
     char memoryRead[2];
-    uint16_t* returnValuePointer;
-    FunctionPointer externalCallback;
+
+    uint16_t registerValue;
+    event_callback_t registerCallback;
+    event_callback_t externalCallback;
 
 
 };
