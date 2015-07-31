@@ -56,6 +56,12 @@ void FuelGauge::getPerMilleDone(int value)
 {
     if (externalCallback)
     {
+        // remove rounding error when converting percent to per mille
+        if (value > 100 * 256)
+        {
+            value = 100 * 256;
+        }
+
         externalCallback.call(value * 10 / 256);
     }
 }
