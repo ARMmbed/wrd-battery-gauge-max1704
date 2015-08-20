@@ -16,7 +16,7 @@
     }
   ],
   "dependencies": {
-    "mbed-core": "~0.2.0",
+    "mbed-drivers": "~0.6.0",
     "swo": "ARMmbed/swo#~1.1.0"
   },
   "targetDependencies": {}

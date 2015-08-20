@@ -47,7 +47,7 @@ void FuelGauge::getPerMille(void (*_callback)(int))
 {
     externalCallback.attach(_callback);
 
-    event_callback_t callback(this, &FuelGauge::getPerMilleDone);
+    FunctionPointer1<void, int> callback(this, &FuelGauge::getPerMilleDone);
 
     getRegister(REGISTER_SOC, callback);
 }
@@ -73,7 +73,7 @@ void FuelGauge::getMilliVolt(void (*_callback)(int))
 {
     externalCallback.attach(_callback);
 
-    event_callback_t callback(this, &FuelGauge::getMilliVoltDone);
+    FunctionPointer1<void, int> callback(this, &FuelGauge::getMilliVoltDone);
 
     getRegister(REGISTER_VCELL, callback);
 }
@@ -90,18 +90,18 @@ void FuelGauge::getMilliVoltDone(int value)
 
 /*  Generic functions for reading and writing registers.
 */
-void FuelGauge::getRegister(register_t reg, event_callback_t& _callback)
+void FuelGauge::getRegister(register_t reg, FunctionPointer1<void, int>& _callback)
 {
     registerCallback = _callback;
 
     memoryWrite[0] = reg;
 
-    event_callback_t callback(this, &FuelGauge::getRegisterDone);
+    I2C::event_callback_t callback(this, &FuelGauge::getRegisterDone);
 
     i2c.transfer(FUEL_GAUGE_ADDRESS, memoryWrite, 1, memoryRead, 2, callback);
 }
 
-void FuelGauge::getRegisterDone(int code __attribute__((unused)))
+void FuelGauge::getRegisterDone(Buffer txBuffer, Buffer rxBuffer, int code)
 {
     registerValue = ((uint16_t) memoryRead[0] << 8) | memoryRead[1];
 
@@ -113,7 +113,7 @@ void FuelGauge::getRegisterDone(int code __attribute__((unused)))
 
 
 
-void FuelGauge::setRegister(register_t reg, uint16_t value, event_callback_t& _callback)
+void FuelGauge::setRegister(register_t reg, uint16_t value, FunctionPointer1<void, int>& _callback)
 {
     registerCallback = _callback;
 
@@ -121,12 +121,12 @@ void FuelGauge::setRegister(register_t reg, uint16_t value, event_callback_t& _c
     memoryWrite[1] = value >> 8;
     memoryWrite[2] = value;
 
-    event_callback_t callback(this, &FuelGauge::setRegisterDone);
+    I2C::event_callback_t callback(this, &FuelGauge::setRegisterDone);
 
     i2c.transfer(FUEL_GAUGE_ADDRESS, memoryWrite, 3, memoryRead, 0, callback);
 }
 
-void FuelGauge::setRegisterDone(int code __attribute__((unused)))
+void FuelGauge::setRegisterDone(Buffer, Buffer, int)
 {
     if (registerCallback)
     {

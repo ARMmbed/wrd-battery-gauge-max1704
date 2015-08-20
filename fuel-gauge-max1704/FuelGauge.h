@@ -51,7 +51,7 @@ public:
     {
         externalCallback.attach(object, member);
 
-        event_callback_t callback(this, &FuelGauge::getPerMilleDone);
+        FunctionPointer1<void, int> callback(this, &FuelGauge::getPerMilleDone);
 
         getRegister(REGISTER_SOC, callback);
     }
@@ -66,7 +66,7 @@ public:
     {
         externalCallback.attach(object, member);
 
-        event_callback_t callback(this, &FuelGauge::getMilliVoltDone);
+        FunctionPointer1<void, int> callback(this, &FuelGauge::getMilliVoltDone);
 
         getRegister(REGISTER_VCELL, callback);
     }
@@ -77,7 +77,7 @@ public:
     */
     void reset(void (*_callback)(int))
     {
-        event_callback_t callback(_callback);
+        FunctionPointer1<void, int> callback(_callback);
 
         setRegister(REGISTER_CMD, 0x5400, callback);
     }
@@ -281,11 +281,11 @@ private:
     void getMilliVoltDone(int);
 
 private:
-    void getRegister(register_t reg, event_callback_t& callback);
-    void getRegisterDone(int code);
+    void getRegister(register_t reg, FunctionPointer1<void, int>& callback);
+    void getRegisterDone(Buffer txBuffer, Buffer rxBuffer, int code);
 
-    void setRegister(register_t reg, uint16_t value, event_callback_t& callback);
-    void setRegisterDone(int code);
+    void setRegister(register_t reg, uint16_t value, FunctionPointer1<void, int>& callback);
+    void setRegisterDone(Buffer txBuffer, Buffer rxBuffer, int code);
 
     void alertISR();
 
@@ -296,10 +296,8 @@ private:
     char memoryRead[2];
 
     uint16_t registerValue;
-    event_callback_t registerCallback;
-    event_callback_t externalCallback;
-
-
+    FunctionPointer1<void, int> registerCallback;
+    FunctionPointer1<void, int> externalCallback;
 };
 
 #endif // __FUELGAUGE_H__
