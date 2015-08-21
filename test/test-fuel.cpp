@@ -39,6 +39,8 @@ DigitalOut vibra(PA10);
 
 FuelGauge monitor(I2C_SDA, I2C_SCL, FUEL_IRQ);
 
+InterruptIn mbed_button0(BTN0);
+
 
 #define FUEL_GAUGE_ADDRESS 0x6C
 
@@ -82,16 +84,12 @@ static void fuelTask()
 //    monitor.getCommand(&version, i2cDone);
 }
 
-int main()
+void app_start(int, char *[])
 {
-    // button
-    InterruptIn mbed_button0(BTN0);
     mbed_button0.mode(PullUp);
     // Delay for initial pullup to take effect
     wait(.01);
     mbed_button0.fall(button0fall);
 
     minar::Scheduler::postCallback(fuelTask);
-
-    return minar::Scheduler::start();
 }
