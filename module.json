@@ -1,6 +1,6 @@
 {
   "name": "fuel-gauge-max1704",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Driver for the MAX17048/MAX17049 current fuel gauge chip.",
   "keywords": [],
   "author": "Marcus Chang <marcus.chang@arm.com>",
