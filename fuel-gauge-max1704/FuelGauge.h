@@ -19,6 +19,9 @@
 #define __FUELGAUGE_H__
 
 #include "mbed.h"
+#include "core-util/FunctionPointer.h"
+
+using namespace mbed::util;
 
 class FuelGauge
 {
