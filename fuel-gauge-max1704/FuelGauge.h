@@ -18,7 +18,7 @@
 #ifndef __FUELGAUGE_H__
 #define __FUELGAUGE_H__
 
-#include "mbed.h"
+#include "mbed-drivers/mbed.h"
 #include "core-util/FunctionPointer.h"
 
 using namespace mbed::util;

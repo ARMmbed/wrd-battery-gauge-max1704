@@ -19,7 +19,7 @@
 
 
 
-#if 1
+#if 0
 #include "swo/swo.h"
 #define printf(...) { swoprintf(__VA_ARGS__); }
 #else
@@ -103,6 +103,10 @@ void FuelGauge::getRegister(register_t reg, FunctionPointer1<void, int>& _callba
 
 void FuelGauge::getRegisterDone(Buffer txBuffer, Buffer rxBuffer, int code)
 {
+    (void) txBuffer;
+    (void) rxBuffer;
+    (void) code;
+
     registerValue = ((uint16_t) memoryRead[0] << 8) | memoryRead[1];
 
     if (registerCallback)
