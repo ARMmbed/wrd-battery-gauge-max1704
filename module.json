@@ -1,7 +1,7 @@
 {
-  "name": "fuel-gauge-max1704",
+  "name": "wrd-fuel-gauge-max1704",
   "version": "1.0.0",
-  "description": "Driver for the MAX17048/MAX17049 current fuel gauge chip.",
+  "description": "Driver for the MAX17048/MAX17049 current fuel gauge chip using the Watch Reference Design API.",
   "keywords": [],
   "author": "Marcus Chang <marcus.chang@arm.com>",
   "repository": {
@@ -16,12 +16,13 @@
     }
   ],
   "dependencies": {
+    "wrd-fuel-gauge": "*",
     "mbed-drivers": "~0.11.0",
     "core-util": "^1.0.0"
   },
   "targetDependencies": {
     "swo": {
-      "swo": "~1.1.0"
+      "swo": "^1.1.0"
     }
   }
 }

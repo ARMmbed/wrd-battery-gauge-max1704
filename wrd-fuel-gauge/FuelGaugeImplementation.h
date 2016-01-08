@@ -1,29 +1,31 @@
-/* mbed
- * Copyright (c) 2006-2015 ARM Limited
+/*
+ * Copyright (c) 2016, ARM Limited, All Rights Reserved
+ * SPDX-License-Identifier: Apache-2.0
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
-
-#ifndef __FUELGAUGE_H__
-#define __FUELGAUGE_H__
+#ifndef __WRD_FUEL_GAUGE_IMPLEMENTATION_H__
+#define __WRD_FUEL_GAUGE_IMPLEMENTATION_H__
 
 #include "mbed-drivers/mbed.h"
 #include "core-util/FunctionPointer.h"
 
+#include "wrd-fuel-gauge/FuelGaugeBase.h"
+
 using namespace mbed::util;
 
-class FuelGauge
+class FuelGaugeImplementation : public FuelGaugeBase
 {
 public:
     typedef enum {
@@ -45,47 +47,73 @@ public:
         REGISTER_CMD            = 0xFE
     } register_t;
 
-    FuelGauge(PinName _sda, PinName _scl, PinName _irq);
+    FuelGaugeImplementation(void);
 
-    /*  Get battery level in per mille.
-    */
-    template <typename T>
-    void getPerMille(T* object, void (T::*member)(int))
-    {
-        externalCallback.attach(object, member);
+    /**
+     * @brief Get battery level in permille.
+     *
+     * @param callback Function to be called with the fuel level as parameter.
+     */
+    virtual void getPerMille(FunctionPointer1<void, uint16_t> callback);
 
-        FunctionPointer1<void, int> callback(this, &FuelGauge::getPerMilleDone);
+    /**
+     * @brief Get battery voltage in milli volt.
+     *
+     * @param callback Function to be called with the battery voltage as parameter.
+     */
+    virtual void getMilliVolt(FunctionPointer1<void, uint16_t> callback);
 
-        getRegister(REGISTER_SOC, callback);
-    }
+    /**
+     * @brief Set callback function for when the battery level changes.
+     * @details The callback function is be called every time the battery
+     *          level changes approximately +/- 1%. The exact value may depend
+     *          upon the granularity supported by the hardware and what offers
+     *          the best tradeof between power consumption and precision.
+     *
+     * @param callback Function to be called when the battery level has changed
+     *                 with the new level in permille as the parameter.
+     */
+    virtual void setPerMilleChangeCallback(FunctionPointer1<void, uint16_t> callback);
 
-    void getPerMille(void (*_callback)(int));
+    /**
+     * @brief Cancel callback function set up by setPerMilleChangeCallback.
+     *
+     * @param callback Function to be removed from callback list.
+     */
+    virtual void cancelCallback(FunctionPointer1<void, uint16_t> callback);
 
+private:
+    void getPerMilleDone(uint16_t);
+    void getMilliVoltDone(uint16_t);
 
-    /*  Get battery voltage in milli volts.
-    */
-    template <typename T>
-    void getMilliVolt(T* object, void (T::*member)(int))
-    {
-        externalCallback.attach(object, member);
+private:
+    void getRegister(register_t reg, FunctionPointer1<void, uint16_t>& callback);
+    void getRegisterDone(Buffer txBuffer, Buffer rxBuffer, int code);
 
-        FunctionPointer1<void, int> callback(this, &FuelGauge::getMilliVoltDone);
+    void setRegister(register_t reg, uint16_t value, FunctionPointer1<void, uint16_t>& callback);
+    void setRegisterDone(Buffer txBuffer, Buffer rxBuffer, int code);
 
-        getRegister(REGISTER_VCELL, callback);
-    }
+    void alertISR();
 
-    void getMilliVolt(void (*_callback)(int));
+    I2C i2c;
+//    InterruptIn irq;
 
+    char memoryWrite[3];
+    char memoryRead[2];
+
+    uint16_t registerValue;
+    FunctionPointer1<void, uint16_t> registerCallback;
+    FunctionPointer1<void, uint16_t> externalCallback;
+};
+#if 0
     /*  Reset fuel gauge monitor.
     */
-    void reset(void (*_callback)(int))
+    void reset(void (*_callback)(uint16_t))
     {
-        FunctionPointer1<void, int> callback(_callback);
+        FunctionPointer1<void, uint16_t> callback(_callback);
 
         setRegister(REGISTER_CMD, 0x5400, callback);
     }
-
-#if 0
 
     /*  Set threshold for when to alert about an emepty battery.
     */
@@ -278,29 +306,4 @@ public:
 
 #endif
 
-
-private:
-    void getPerMilleDone(int);
-    void getMilliVoltDone(int);
-
-private:
-    void getRegister(register_t reg, FunctionPointer1<void, int>& callback);
-    void getRegisterDone(Buffer txBuffer, Buffer rxBuffer, int code);
-
-    void setRegister(register_t reg, uint16_t value, FunctionPointer1<void, int>& callback);
-    void setRegisterDone(Buffer txBuffer, Buffer rxBuffer, int code);
-
-    void alertISR();
-
-    I2C i2c;
-    InterruptIn irq;
-
-    char memoryWrite[3];
-    char memoryRead[2];
-
-    uint16_t registerValue;
-    FunctionPointer1<void, int> registerCallback;
-    FunctionPointer1<void, int> externalCallback;
-};
-
-#endif // __FUELGAUGE_H__
+#endif // __WRD_FUEL_GAUGE_IMPLEMENTATION_H__
