@@ -1,14 +1,14 @@
 {
-  "name": "wrd-fuel-gauge-max1704",
+  "name": "wrd-battery-gauge-max1704",
   "version": "2.0.0",
-  "description": "Driver for the MAX17048/MAX17049 current fuel gauge chip using the Watch Reference Design API.",
+  "description": "Driver for the MAX17048/MAX17049 current battery gauge chip using the Watch Reference Design API.",
   "keywords": [],
   "author": "Marcus Chang <marcus.chang@arm.com>",
   "repository": {
-    "url": "git@github.com:ARMmbed/fuel-gauge-max1704.git",
+    "url": "git@github.com:ARMmbed/wrd-battery-gauge-max1704.git",
     "type": "git"
   },
-  "homepage": "https://github.com/ARMmbed/fuel-gauge-max1704",
+  "homepage": "https://github.com/ARMmbed/wrd-battery-gauge-max1704",
   "licenses": [
     {
       "url": "https://spdx.org/licenses/Apache-2.0",
@@ -16,7 +16,7 @@
     }
   ],
   "dependencies": {
-    "wrd-fuel-gauge": "*",
+    "wrd-battery-gauge": "*",
     "mbed-drivers": "~0.11.0",
     "core-util": "^1.0.0"
   },

@@ -15,44 +15,20 @@
  */
 
 
-#include "mbed.h"
-#include "minar/minar.h"
+#include "mbed-drivers/mbed.h"
 
-#include "fuel-gauge-max1704/FuelGauge.h"
+#include "wrd-battery-gauge/BatteryGaugeImplementation.h"
 
 #include "swo/swo.h"
 
-#if defined(STK3700)
-// stk3700
-PinName FUEL_IRQ = PD4;
-DigitalOut vibra(LED0);
-#elif defined(WATCH)
-// watch
-PinName I2C_SDA = PC4;
-PinName I2C_SCL = PC5;
-PinName FUEL_IRQ = PD4;
-DigitalOut vibra(PA10);
-#else
+#if !YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_BATTERY_GAUGE_PRESENT
 #error platform not supported
 #endif
 
 
-FuelGauge monitor(I2C_SDA, I2C_SCL, FUEL_IRQ);
-
-InterruptIn mbed_button0(BTN0);
-
-
-#define FUEL_GAUGE_ADDRESS 0x6C
-
-
-static void button0fall()
-{
-    vibra = !vibra;
-
-    monitor.reset(NULL);
-}
-
-
+BatteryGaugeImplementation monitor(YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_BATTERY_GAUGE_I2C_SDA,
+                                   YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_BATTERY_GAUGE_I2C_SCL,
+                                   YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_BATTERY_GAUGE_PIN_IRQ);
 
 static void milliVoltDone(int milliVolt)
 {
@@ -66,9 +42,9 @@ static void permilleDone(int charge)
     monitor.getMilliVolt(milliVoltDone);
 }
 
-static void fuelTask()
+static void batteryTask()
 {
-    swoprintf("fuel\r\n");
+    swoprintf("battery\r\n");
 
     monitor.getPerMille(permilleDone);
 
@@ -86,10 +62,5 @@ static void fuelTask()
 
 void app_start(int, char *[])
 {
-    mbed_button0.mode(PullUp);
-    // Delay for initial pullup to take effect
-    wait(.01);
-    mbed_button0.fall(button0fall);
-
-    minar::Scheduler::postCallback(fuelTask);
+    minar::Scheduler::postCallback(batteryTask);
 }

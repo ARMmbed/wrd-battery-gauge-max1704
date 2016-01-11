@@ -15,21 +15,21 @@
  * limitations under the License.
  */
 
-#ifndef __WRD_FUEL_GAUGE_IMPLEMENTATION_H__
-#define __WRD_FUEL_GAUGE_IMPLEMENTATION_H__
+#ifndef __WRD_BATTERY_GAUGE_IMPLEMENTATION_H__
+#define __WRD_BATTERY_GAUGE_IMPLEMENTATION_H__
 
 #include "mbed-drivers/mbed.h"
 #include "core-util/FunctionPointer.h"
 
-#include "wrd-fuel-gauge/FuelGaugeBase.h"
+#include "wrd-battery-gauge/BatteryGaugeBase.h"
 
 using namespace mbed::util;
 
-class FuelGaugeImplementation : public FuelGaugeBase
+class BatteryGaugeImplementation : public BatteryGaugeBase
 {
 public:
     typedef enum {
-        FUEL_GAUGE_ADDRESS = 0x6C
+        BATTERY_GAUGE_ADDRESS = 0x6C
     } address_t;
 
     typedef enum {
@@ -47,12 +47,12 @@ public:
         REGISTER_CMD            = 0xFE
     } register_t;
 
-    FuelGaugeImplementation(void);
+    BatteryGaugeImplementation(void);
 
     /**
      * @brief Get battery level in permille.
      *
-     * @param callback Function to be called with the fuel level as parameter.
+     * @param callback Function to be called with the battery level as parameter.
      */
     virtual void getPerMille(FunctionPointer1<void, uint16_t> callback);
 
@@ -106,7 +106,7 @@ private:
     FunctionPointer1<void, uint16_t> externalCallback;
 };
 #if 0
-    /*  Reset fuel gauge monitor.
+    /*  Reset battery gauge monitor.
     */
     void reset(void (*_callback)(uint16_t))
     {
@@ -306,4 +306,4 @@ private:
 
 #endif
 
-#endif // __WRD_FUEL_GAUGE_IMPLEMENTATION_H__
+#endif // __WRD_BATTERY_GAUGE_IMPLEMENTATION_H__

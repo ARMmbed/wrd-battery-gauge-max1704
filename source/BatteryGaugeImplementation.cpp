@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "wrd-fuel-gauge/FuelGaugeImplementation.h"
+#include "wrd-battery-gauge/BatteryGaugeImplementation.h"
 
 #if 0
 #include "swo/swo.h"
@@ -25,33 +25,33 @@
 #endif
 
 
-FuelGaugeImplementation::FuelGaugeImplementation(void)
-    :   FuelGaugeBase(),
-        i2c(YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_FUEL_GAUGE_I2C_SDA,
-            YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_FUEL_GAUGE_I2C_SCL)
+BatteryGaugeImplementation::BatteryGaugeImplementation(void)
+    :   BatteryGaugeBase(),
+        i2c(YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_BATTERY_GAUGE_I2C_SDA,
+            YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_BATTERY_GAUGE_I2C_SCL)
 {
     i2c.frequency(400000);
 
 //    irq.mode(PullUp);
     // Delay for initial pullup to take effect
 //    wait(.01);
-//    irq.fall(this, &FuelGaugeImplementation::alertISR);
+//    irq.fall(this, &BatteryGaugeImplementation::alertISR);
 }
 
 
 
 /*  Get battery level in per mille.
 */
-void FuelGaugeImplementation::getPerMille(FunctionPointer1<void, uint16_t> callback)
+void BatteryGaugeImplementation::getPerMille(FunctionPointer1<void, uint16_t> callback)
 {
     externalCallback = callback;
 
-    FunctionPointer1<void, uint16_t> fp(this, &FuelGaugeImplementation::getPerMilleDone);
+    FunctionPointer1<void, uint16_t> fp(this, &BatteryGaugeImplementation::getPerMilleDone);
 
     getRegister(REGISTER_SOC, fp);
 }
 
-void FuelGaugeImplementation::getPerMilleDone(uint16_t value)
+void BatteryGaugeImplementation::getPerMilleDone(uint16_t value)
 {
     if (externalCallback)
     {
@@ -68,16 +68,16 @@ void FuelGaugeImplementation::getPerMilleDone(uint16_t value)
 
 /*  Get battery voltage in milli volt.
 */
-void FuelGaugeImplementation::getMilliVolt(FunctionPointer1<void, uint16_t> callback)
+void BatteryGaugeImplementation::getMilliVolt(FunctionPointer1<void, uint16_t> callback)
 {
     externalCallback = callback;
 
-    FunctionPointer1<void, uint16_t> fp(this, &FuelGaugeImplementation::getMilliVoltDone);
+    FunctionPointer1<void, uint16_t> fp(this, &BatteryGaugeImplementation::getMilliVoltDone);
 
     getRegister(REGISTER_VCELL, fp);
 }
 
-void FuelGaugeImplementation::getMilliVoltDone(uint16_t value)
+void BatteryGaugeImplementation::getMilliVoltDone(uint16_t value)
 {
     if (externalCallback)
     {
@@ -86,30 +86,30 @@ void FuelGaugeImplementation::getMilliVoltDone(uint16_t value)
 }
 
 
-void FuelGaugeImplementation::setPerMilleChangeCallback(FunctionPointer1<void, uint16_t> callback)
+void BatteryGaugeImplementation::setPerMilleChangeCallback(FunctionPointer1<void, uint16_t> callback)
 {
 
 }
 
-void FuelGaugeImplementation::cancelCallback(FunctionPointer1<void, uint16_t> callback)
+void BatteryGaugeImplementation::cancelCallback(FunctionPointer1<void, uint16_t> callback)
 {
 
 }
 
 /*  Generic functions for reading and writing registers.
 */
-void FuelGaugeImplementation::getRegister(register_t reg, FunctionPointer1<void, uint16_t>& _callback)
+void BatteryGaugeImplementation::getRegister(register_t reg, FunctionPointer1<void, uint16_t>& _callback)
 {
     registerCallback = _callback;
 
     memoryWrite[0] = reg;
 
-    I2C::event_callback_t callback(this, &FuelGaugeImplementation::getRegisterDone);
+    I2C::event_callback_t callback(this, &BatteryGaugeImplementation::getRegisterDone);
 
-    i2c.transfer(FUEL_GAUGE_ADDRESS, memoryWrite, 1, memoryRead, 2, callback);
+    i2c.transfer(BATTERY_GAUGE_ADDRESS, memoryWrite, 1, memoryRead, 2, callback);
 }
 
-void FuelGaugeImplementation::getRegisterDone(Buffer txBuffer, Buffer rxBuffer, int code)
+void BatteryGaugeImplementation::getRegisterDone(Buffer txBuffer, Buffer rxBuffer, int code)
 {
     (void) txBuffer;
     (void) rxBuffer;
@@ -125,7 +125,7 @@ void FuelGaugeImplementation::getRegisterDone(Buffer txBuffer, Buffer rxBuffer, 
 
 
 
-void FuelGaugeImplementation::setRegister(register_t reg, uint16_t value, FunctionPointer1<void, uint16_t>& _callback)
+void BatteryGaugeImplementation::setRegister(register_t reg, uint16_t value, FunctionPointer1<void, uint16_t>& _callback)
 {
     registerCallback = _callback;
 
@@ -133,12 +133,12 @@ void FuelGaugeImplementation::setRegister(register_t reg, uint16_t value, Functi
     memoryWrite[1] = value >> 8;
     memoryWrite[2] = value;
 
-    I2C::event_callback_t callback(this, &FuelGaugeImplementation::setRegisterDone);
+    I2C::event_callback_t callback(this, &BatteryGaugeImplementation::setRegisterDone);
 
-    i2c.transfer(FUEL_GAUGE_ADDRESS, memoryWrite, 3, memoryRead, 0, callback);
+    i2c.transfer(BATTERY_GAUGE_ADDRESS, memoryWrite, 3, memoryRead, 0, callback);
 }
 
-void FuelGaugeImplementation::setRegisterDone(Buffer, Buffer, int)
+void BatteryGaugeImplementation::setRegisterDone(Buffer, Buffer, int)
 {
     if (registerCallback)
     {
@@ -148,7 +148,7 @@ void FuelGaugeImplementation::setRegisterDone(Buffer, Buffer, int)
 
 
 
-void FuelGaugeImplementation::alertISR()
+void BatteryGaugeImplementation::alertISR()
 {
     printf("alert\r\n");
 }
