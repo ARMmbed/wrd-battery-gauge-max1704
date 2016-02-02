@@ -88,12 +88,12 @@ void BatteryGaugeImplementation::getMilliVoltDone(uint16_t value)
 
 void BatteryGaugeImplementation::setPerMilleChangeCallback(FunctionPointer1<void, uint16_t> callback)
 {
-
+    (void) callback;
 }
 
 void BatteryGaugeImplementation::cancelCallback(FunctionPointer1<void, uint16_t> callback)
 {
-
+    (void) callback;
 }
 
 /*  Generic functions for reading and writing registers.
