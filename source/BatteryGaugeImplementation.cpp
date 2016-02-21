@@ -24,11 +24,15 @@
 #define printf(...)
 #endif
 
+#ifdef YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_BATTERY_GAUGE_I2C_NAME
+#define I2C_NAME YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_BATTERY_GAUGE_I2C_NAME
+#else
+#error missing configuration
+#endif
 
 BatteryGaugeImplementation::BatteryGaugeImplementation(void)
     :   BatteryGaugeBase(),
-        i2c(YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_BATTERY_GAUGE_I2C_SDA,
-            YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_BATTERY_GAUGE_I2C_SCL)
+        i2c(I2C_NAME)
 {
     i2c.frequency(400000);
 

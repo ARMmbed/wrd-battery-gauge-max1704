@@ -19,9 +19,10 @@
 #define __WRD_BATTERY_GAUGE_IMPLEMENTATION_H__
 
 #include "mbed-drivers/mbed.h"
-#include "core-util/FunctionPointer.h"
 
 #include "wrd-battery-gauge/BatteryGaugeBase.h"
+#include "wrd-utilities/I2CEx.h"
+#include "wrd-utilities/SharedModules.h"
 
 using namespace mbed::util;
 
@@ -95,7 +96,7 @@ private:
 
     void alertISR();
 
-    I2C i2c;
+    I2CEx& i2c;
 //    InterruptIn irq;
 
     char memoryWrite[3];
