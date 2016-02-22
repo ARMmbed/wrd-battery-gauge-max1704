@@ -89,10 +89,10 @@ private:
 
 private:
     void getRegister(register_t reg, FunctionPointer1<void, uint16_t>& callback);
-    void getRegisterDone(Buffer txBuffer, Buffer rxBuffer, int code);
+    void getRegisterDone(void);
 
-    void setRegister(register_t reg, uint16_t value, FunctionPointer1<void, uint16_t>& callback);
-    void setRegisterDone(Buffer txBuffer, Buffer rxBuffer, int code);
+    void setRegister(register_t reg, uint16_t value, FunctionPointer0<void>& callback);
+    void setRegisterDone(void);
 
     void alertISR();
 

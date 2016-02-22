@@ -42,8 +42,6 @@ BatteryGaugeImplementation::BatteryGaugeImplementation(void)
 //    irq.fall(this, &BatteryGaugeImplementation::alertISR);
 }
 
-
-
 /*  Get battery level in per mille.
 */
 void BatteryGaugeImplementation::getPerMille(FunctionPointer1<void, uint16_t> callback)
@@ -68,7 +66,6 @@ void BatteryGaugeImplementation::getPerMilleDone(uint16_t value)
         externalCallback.call(value * 10 / 256);
     }
 }
-
 
 /*  Get battery voltage in milli volt.
 */
@@ -102,55 +99,32 @@ void BatteryGaugeImplementation::cancelCallback(FunctionPointer1<void, uint16_t>
 
 /*  Generic functions for reading and writing registers.
 */
-void BatteryGaugeImplementation::getRegister(register_t reg, FunctionPointer1<void, uint16_t>& _callback)
+void BatteryGaugeImplementation::getRegister(register_t reg, FunctionPointer1<void, uint16_t>& callback)
 {
-    registerCallback = _callback;
+    registerCallback = callback;
 
-    memoryWrite[0] = reg;
-
-    I2C::event_callback_t callback(this, &BatteryGaugeImplementation::getRegisterDone);
-
-    i2c.transfer(BATTERY_GAUGE_ADDRESS, memoryWrite, 1, memoryRead, 2, callback);
+    FunctionPointer0<void> fp(this, &BatteryGaugeImplementation::getRegisterDone);
+    i2c.read(BATTERY_GAUGE_ADDRESS, reg, memoryRead, 2, fp);
 }
 
-void BatteryGaugeImplementation::getRegisterDone(Buffer txBuffer, Buffer rxBuffer, int code)
+void BatteryGaugeImplementation::getRegisterDone()
 {
-    (void) txBuffer;
-    (void) rxBuffer;
-    (void) code;
-
     registerValue = ((uint16_t) memoryRead[0] << 8) | memoryRead[1];
 
     if (registerCallback)
     {
         registerCallback.call(registerValue);
+        registerCallback.clear();
     }
 }
 
-
-
-void BatteryGaugeImplementation::setRegister(register_t reg, uint16_t value, FunctionPointer1<void, uint16_t>& _callback)
+void BatteryGaugeImplementation::setRegister(register_t reg, uint16_t value, FunctionPointer0<void>& callback)
 {
-    registerCallback = _callback;
+    memoryWrite[0] = value >> 8;
+    memoryWrite[1] = value;
 
-    memoryWrite[0] = reg;
-    memoryWrite[1] = value >> 8;
-    memoryWrite[2] = value;
-
-    I2C::event_callback_t callback(this, &BatteryGaugeImplementation::setRegisterDone);
-
-    i2c.transfer(BATTERY_GAUGE_ADDRESS, memoryWrite, 3, memoryRead, 0, callback);
+    i2c.write(BATTERY_GAUGE_ADDRESS, reg, memoryWrite, 2, callback);
 }
-
-void BatteryGaugeImplementation::setRegisterDone(Buffer, Buffer, int)
-{
-    if (registerCallback)
-    {
-        registerCallback.call(0);
-    }
-}
-
-
 
 void BatteryGaugeImplementation::alertISR()
 {
