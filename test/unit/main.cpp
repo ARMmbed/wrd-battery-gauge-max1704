@@ -21,14 +21,14 @@
 
 #include "swo/swo.h"
 
-#if !YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_BATTERY_GAUGE_PRESENT
+#if !YOTTA_CFG_HARDWARE_WRD_BATTERY_GAUGE_PRESENT
 #error platform not supported
 #endif
 
 
-BatteryGaugeImplementation monitor(YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_BATTERY_GAUGE_I2C_SDA,
-                                   YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_BATTERY_GAUGE_I2C_SCL,
-                                   YOTTA_CFG_HARDWARE_WEARABLE_REFERENCE_DESIGN_BATTERY_GAUGE_PIN_IRQ);
+BatteryGaugeImplementation monitor(YOTTA_CFG_HARDWARE_WRD_BATTERY_GAUGE_I2C_SDA,
+                                   YOTTA_CFG_HARDWARE_WRD_BATTERY_GAUGE_I2C_SCL,
+                                   YOTTA_CFG_HARDWARE_WRD_BATTERY_GAUGE_PIN_IRQ);
 
 static void milliVoltDone(int milliVolt)
 {
