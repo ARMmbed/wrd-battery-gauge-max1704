@@ -1,6 +1,6 @@
 {
   "name": "wrd-battery-gauge-max1704",
-  "version": "4.1.1",
+  "version": "5.0.0",
   "description": "Driver for the MAX17048/MAX17049 current battery gauge chip using the Watch Reference Design API.",
   "keywords": [],
   "author": "Marcus Chang <marcus.chang@arm.com>",
