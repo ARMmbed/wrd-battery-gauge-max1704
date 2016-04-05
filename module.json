@@ -16,6 +16,7 @@
     }
   ],
   "dependencies": {
+    "wrd-gpio-switch": "*",
     "wrd-battery-gauge": "*",
     "mbed-drivers": "*"
   }
